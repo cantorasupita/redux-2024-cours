@@ -2,24 +2,38 @@ import {configureStore} from "@reduxjs/toolkit"
 
 
 //type ---------------------------------------------------
-type State = {
+type CounterState = {
     counter: number;
+}
+export type CounterId = string
+
+
+type State = {
+    counters: Record<CounterId, CounterState | undefined>;
 }
 
 export type IcrementAction = {
-    type: 'increment'
+    type: 'increment';
+    payload: {
+        counterId: CounterId
+    }
 }
 
 export type DecrementAction = {
-    type: 'decrement'
+    type: 'decrement';
+    payload: {
+        counterId: CounterId
+    }
+
 }
 
 type Action = IcrementAction | DecrementAction;
 
 
 //init state----------------------------------------------------------
+const initialCounterState: CounterState = { counter: 0}
 const initialState: State = {
-    counter: 1,
+    counters: {},
 }
 
 
@@ -27,15 +41,33 @@ const initialState: State = {
 const reducer = (state = initialState, action: Action): State => {
     switch(action.type) {
         case "increment":
+            const { counterId } = action.payload;
+            const currentCounter = state.counters[counterId] ?? initialCounterState;
             return {
                 ...state, 
-                counter: state.counter + 1
+                counters: {
+                    ...state.counters, 
+                    [counterId ]: {
+                        ...currentCounter,
+                        counter: currentCounter.counter +1
+                    }
+                }
             };
-        case "decrement":
+        case "decrement": {
+            const { counterId } = action.payload;
+            const currentCounter = state.counters[counterId] ?? initialCounterState;
             return {
                 ...state, 
-                counter: state.counter - 1
+                counters: {
+                    ...state.counters, 
+                    [counterId ]: {
+                        ...currentCounter,
+                        counter: currentCounter.counter -1
+                    }
+                }
             };
+        }
+           
         default:
             return state;       
     }
